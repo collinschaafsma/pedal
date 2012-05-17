@@ -1,5 +1,5 @@
 module Pedal
-  class Representer
+  class Interface
 
   end
 end

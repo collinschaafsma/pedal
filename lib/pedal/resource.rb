@@ -1,9 +1,18 @@
 module Pedal
   class Resource < Webmachine::Resource
+    include Utils
+    include Renderers
+
     attr_reader :action
 
     def initialize
-      @action = request.method.downcase.to_sym
+      @action = determine_action
+    end
+
+    def respond_to
+      type = Webmachine::MediaType.parse(response.headers['Content-Type']).minor.gsub(/\+/, '_')
+      presentation = yield it_to type
+      self.send("render_#{type}", presentation, template_path)
     end
 
     def resource_exists?
@@ -11,7 +20,15 @@ module Pedal
     end
 
     def content_types_provided
-      [['text/html', action]]
+      [
+        ['text/html',            action],
+        ['application/json',     action],
+        ['text/plain',           action],
+        ['application/xml',      action],
+        ['application/atom+xml', action],
+        ['application/rss+xml',  action],
+        ['application/x-www-form-urlencoded', action]
+      ]
     end
 
     def handle_exception(e)
@@ -25,11 +42,59 @@ module Pedal
 
     def encodings_provided
       if Pedal::Application.config.gzip_response
-        Logger.debug 'gzip response'
         {"gzip" => :encode_gzip, "identity" => :encode_identity}
       else
         {"identity" => :encode_identity }
       end
+    end
+
+    private
+    def determine_action
+      http_method = request.method.downcase.to_sym
+
+      case http_method
+      when :get
+        if edit?;  return :edit;   end
+        if new?;   return :new;    end
+        if show?;  return :show;   end
+        if index?; return :index;  end
+      when :put
+        return :put
+      when :post
+        if update?; return :put; end
+        if delete?; return :delete; end
+        return :post
+      when :delete
+        return :delete
+      end
+    end
+
+    def edit?
+      (request.path_tokens.length > 1 && request.path_tokens[1] == 'edit') ? true : false
+    end
+
+    def new?
+      (request.path_tokens.length > 0 && request.path_tokens[0] == 'new') ? true : false
+    end
+
+    def show?
+      ((request.path_tokens.length > 0) && (not new?) && (not edit?)) ? true : false
+    end
+
+    def index?
+      request.path_tokens.length == 0 ? true : false
+    end
+
+    def update?
+      (request.query.has_key?('_method') && request.query['_method'].downcase == 'put') ? true : false
+    end
+
+    def delete?
+      (request.query.has_key?('_method') && request.query['_method'].downcase == 'delete') ? true : false
+    end
+
+    def template_path
+      "#{self.class.name.gsub(/Resource/, '').gsub(/::/, '/').downcase}/#{action.to_s}"
     end
   end
 end

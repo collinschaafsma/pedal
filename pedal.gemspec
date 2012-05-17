@@ -19,6 +19,12 @@ Gem::Specification.new do |gem|
   gem.version       = Pedal::VERSION
 
   gem.add_dependency 'webmachine', '~> 0.4.2'
-  gem.add_dependency 'roar',       '~> 0.10.1'
   gem.add_dependency 'thor',       '~> 0.15.2'
+  gem.add_dependency 'multi_json', '~> 1.3.4'
+  gem.add_dependency 'blankslate'
+  gem.add_dependency 'tilt'
+  gem.add_dependency 'handlebars'
+
+  gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'rack'
 end
