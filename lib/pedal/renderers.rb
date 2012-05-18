@@ -4,10 +4,16 @@ module Pedal
     autoload :Handlebars,   'pedal/renderers/handlebars'
 
     def render_html(presentation, template)
-      if Pedal::Application.config.template_engine == :handlebars
-        Pedal::Renderers::Handlebars.new(presentation, expand_template(template)).render
+      template = expand_template(template)
+
+      if File.exists? template
+        if Pedal::Application.config.template_engine == :handlebars
+          Pedal::Renderers::Handlebars.new(presentation, template).render
+        else
+          Pedal::Renderers::Tilt.new(presentation, template).render
+        end
       else
-        Pedal::Renderers::Tilt.new(presentation, expand_template(template)).render
+        presentation.to_s
       end
     end
 
