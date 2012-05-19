@@ -26,8 +26,14 @@ module Pedal
         ['text/plain',           action],
         ['application/xml',      action],
         ['application/atom+xml', action],
-        ['application/rss+xml',  action],
-        ['application/x-www-form-urlencoded', action]
+        ['application/rss+xml',  action]
+      ]
+    end
+
+    def content_types_accepted
+      [
+        ['application/x-www-form-urlencoded', action],
+        ['application/octet-stream', action]
       ]
     end
 
@@ -48,6 +54,20 @@ module Pedal
       end
     end
 
+    def post_is_create?
+      true
+    end
+
+    def delete_resource
+      if self.respond_to?(:destroy)
+        self.send(:destroy)
+      else
+        false
+      end
+    end
+
+    alias_method :destroy, :delete_resource
+
     private
     def determine_action
       http_method = request.method.downcase.to_sym
@@ -59,13 +79,11 @@ module Pedal
         if show?;  return :show;   end
         if index?; return :index;  end
       when :put
-        return :put
+        return :update
       when :post
-        if update?; return :put; end
-        if delete?; return :delete; end
-        return :post
+        return :create
       when :delete
-        return :delete
+        return :delete_resource
       end
     end
 
@@ -83,14 +101,6 @@ module Pedal
 
     def index?
       request.path_tokens.length == 0 ? true : false
-    end
-
-    def update?
-      (request.query.has_key?('_method') && request.query['_method'].downcase == 'put') ? true : false
-    end
-
-    def delete?
-      (request.query.has_key?('_method') && request.query['_method'].downcase == 'delete') ? true : false
     end
 
     def template_path

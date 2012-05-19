@@ -16,6 +16,8 @@ module Pedal
   HANDLEBARS = Handlebars::Context.new
 
   autoload :Application,   'pedal/application'
+  autoload :Request,       'pedal/request'
+  autoload :Response,      'pedal/response'
   autoload :Resource,      'pedal/resource'
   autoload :Presenter,     'pedal/presenter'
   autoload :Interface,     'pedal/interface'

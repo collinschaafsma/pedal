@@ -33,6 +33,10 @@ module Pedal
         yield config
       end
     end
+  end
 
+  # @return [Application] the default global Application from Webmachine::Application instance
+  def self.application
+    @application ||= Application.new
   end
 end
