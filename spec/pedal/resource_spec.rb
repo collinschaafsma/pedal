@@ -21,6 +21,23 @@ describe Pedal::Resource do
     end
   end
 
+  let(:resource2) do
+    Tests2Resource = Class.new(Pedal::Resource) do
+      def index
+        respond_to do |format|
+          format.json { { index: 'JSON' } }
+          format.html { "<p>index html</p>" }
+        end
+      end
+      def show;   "show action";   end
+      def edit;   "edit action";   end
+      def create; end
+      def update; end
+      def destroy; true; end
+      def create_path; "/tests/new-test"; end
+    end
+  end
+
   before :all do
     dispatcher.add_route ['tests', '*'], resource
   end
@@ -150,6 +167,31 @@ describe Pedal::Resource do
     it "should call the destroy method" do
       dispatcher.dispatch(request, response)
       response.code.should == 204
+    end
+  end
+
+  describe "GET - HTML /not-here" do
+    response = Pedal::Response.new
+    request  = Pedal::Request.new("GET",
+                    URI.parse("http://localhost:8080/not-here"),
+                    Webmachine::Headers["accept" => "*/*"], "")
+
+    it "should return a 404 page" do
+      dispatcher.dispatch(request, response)
+      response.code.should == 404
+    end
+  end
+
+  describe "GET - HTML /tests2/new" do
+    response = Pedal::Response.new
+    request  = Pedal::Request.new("GET",
+                    URI.parse("http://localhost:8080/tests2/new"),
+                    Webmachine::Headers["accept" => "*/*"], "")
+
+    it "should return a 404 page because we don't have a new method" do
+      dispatcher.add_route ['tests2', '*'], resource2
+      dispatcher.dispatch(request, response)
+      response.code.should == 404
     end
   end
 end
