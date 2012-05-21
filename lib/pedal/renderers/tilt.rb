@@ -11,6 +11,7 @@ module Pedal
       end
 
       def render
+        p template
         template = ::Tilt.new(template)
         template.render(nil, presentation)
       end

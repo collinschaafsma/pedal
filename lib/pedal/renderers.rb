@@ -10,6 +10,7 @@ module Pedal
         if Pedal::Application.config.template_engine == :handlebars
           Pedal::Renderers::Handlebars.new(presentation, template).render
         else
+          p template
           Pedal::Renderers::Tilt.new(presentation, template).render
         end
       else

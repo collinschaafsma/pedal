@@ -47,7 +47,11 @@ module Pedal
       end
 
       def template_directory
-        ::File.path template
+        ::File.dirname template
+      end
+
+      def partial(name)
+        ::File.read(::File.join(template_directory, "_#{name}.html"))
       end
     end
   end

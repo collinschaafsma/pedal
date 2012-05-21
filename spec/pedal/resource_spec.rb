@@ -39,29 +39,30 @@ describe Pedal::Resource do
   end
 
   before :all do
+    dispatcher.reset
     dispatcher.add_route ['tests', '*'], resource
   end
 
-  describe "GET - HTML /tests resource" do
+  describe "with request uri /tests and method GET" do
     response = Pedal::Response.new
     request  = Pedal::Request.new("GET",
                     URI.parse("http://localhost:8080/tests"),
                     Webmachine::Headers["accept" => "*/*"], "")
 
-    it "should call the index method" do
-      dispatcher.dispatch(request, response)
+    it "should call the index method and render HTML" do
+      dispatcher.dispatch request, response
       response.body.should == "<p>index html</p>"
     end
   end
 
-  describe "GET - JSON /tests resource" do
+  describe "with request uri /tests, method GET and header accept application/json " do
     response = Pedal::Response.new
     request  = Pedal::Request.new("GET",
                     URI.parse("http://localhost:8080/tests"),
                     Webmachine::Headers["accept" => "application/json"], "")
 
-    it "should call the index method" do
-      dispatcher.dispatch(request, response)
+    it "should call the index method and render JSON" do
+      dispatcher.dispatch request, response
       response.body.should == '{"index":"JSON"}'
     end
   end
@@ -73,7 +74,7 @@ describe Pedal::Resource do
                     Webmachine::Headers["accept" => "*/*"], "")
 
     it "should call the show method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.body.should == "show action"
     end
   end
@@ -85,7 +86,7 @@ describe Pedal::Resource do
                     Webmachine::Headers["accept" => "*/*"], "")
 
     it "should call the new method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.body.should == "new action"
     end
   end
@@ -97,7 +98,7 @@ describe Pedal::Resource do
                     Webmachine::Headers["accept" => "*/*"], "")
 
     it "should call the edit method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.body.should == "edit action"
     end
   end
@@ -110,7 +111,7 @@ describe Pedal::Resource do
                     "name=new-test")
 
     it "should call the create method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 201
     end
   end
@@ -123,7 +124,7 @@ describe Pedal::Resource do
                     "name=newer-test")
 
     it "should call the update method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 204
     end
   end
@@ -139,7 +140,7 @@ describe Pedal::Resource do
                     "name=newer-test")
 
     it "should call the update method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 204
     end
   end
@@ -151,7 +152,7 @@ describe Pedal::Resource do
                     Webmachine::Headers["accept" => "*/*"], "")
 
     it "should call the destroy method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 204
     end
   end
@@ -165,7 +166,7 @@ describe Pedal::Resource do
                       "X-HTTP-Method-Override" => "DELETE"], "")
 
     it "should call the destroy method" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 204
     end
   end
@@ -177,7 +178,7 @@ describe Pedal::Resource do
                     Webmachine::Headers["accept" => "*/*"], "")
 
     it "should return a 404 page" do
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 404
     end
   end
@@ -190,7 +191,7 @@ describe Pedal::Resource do
 
     it "should return a 404 page because we don't have a new method" do
       dispatcher.add_route ['tests2', '*'], resource2
-      dispatcher.dispatch(request, response)
+      dispatcher.dispatch request, response
       response.code.should == 404
     end
   end
